@@ -1,7 +1,7 @@
 #include "config.h"
 #include <global.h>
 #include <arduino-timer.h>
-
+#include <ArduinoTapTempo.h>
 //#include <driver/i2s.h>
 #include <WiFi.h>
 #include "HTTPClient.h"
@@ -28,6 +28,9 @@ bool irq = false;
 bool screen_power = true;
 
 #define DEFAULT_SCREEN_TIMEOUT 20 * 1000 // setting for timeout before disabling screen
+
+// taptempo lib object
+ArduinoTapTempo tapTempo;
 
 ///   Metronome timer settings
 
@@ -204,6 +207,21 @@ static void inc_tempo_button_handler(lv_obj_t *obj, lv_event_t event)
     }
 }
 
+static void tap_tempo_button_handler(lv_obj_t *obj, lv_event_t event)
+{
+    if (event == LV_EVENT_CLICKED)
+    {
+        printf("tap temp\n");
+
+        tapTempo.update(true); tapTempo.update(false);  //simulate button tap and release
+        int tap_bpm = int(tapTempo.getBPM());
+        printf("detected tempo %d\n", tap_bpm );
+        set_bpm(tap_bpm);
+       // lv_slider_set_value(slider, bpm, LV_ANIM_ON);
+    }
+}
+
+
 void gui_dec_bpm_btn(void)
 {
     lv_obj_t *label;
@@ -230,12 +248,27 @@ void gui_inc_bpm_btn(void)
     lv_label_set_text(label, "+");
 }
 
+void gui_tap_bpm_btn(void)
+{
+    lv_obj_t *label;
+
+    lv_obj_t *tap_bpm = lv_btn_create(lv_scr_act(), NULL);
+    lv_obj_set_event_cb(tap_bpm, tap_tempo_button_handler);
+    lv_obj_align(tap_bpm, NULL, LV_ALIGN_IN_TOP_MID, +130, +160);
+    lv_obj_set_height(tap_bpm, 50);
+    lv_obj_set_width(tap_bpm, 50);
+    label = lv_label_create(tap_bpm, NULL);
+    lv_label_set_text(label, "tap");
+}
+
+
 void create_gui()
 {
     gui_on_off_switches();
     gui_bpm_slider();
     gui_dec_bpm_btn();
     gui_inc_bpm_btn();
+    gui_tap_bpm_btn();
 }
 
 // Reduce power usage by turning off screen when no user input
