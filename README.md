@@ -13,6 +13,6 @@ Turns off after 15 seconds if metronome is not playing, otherwise turns off the 
 
 ToDo:
 
-1) Tap tempo feature
-2) Show battery status
-3) Multiple click sounds to choose from.
+ 
+1) Show battery status
+2) Multiple click sounds to choose from.
